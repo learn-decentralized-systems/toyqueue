@@ -91,7 +91,7 @@ func (q *RecordQueue) Feed() (recs Records, err error) {
 	return
 }
 
-func (q *RecordQueue) Blocking() FeederDrainerCloser {
+func (q *RecordQueue) Blocking() FeedDrainCloser {
 	if q.cond.L == nil {
 		q.cond.L = &q.lock
 	}

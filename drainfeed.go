@@ -17,22 +17,22 @@ type Drainer interface {
 	Drain(recs Records) error
 }
 
-type FeederDrainer interface {
+type FeedDrainer interface {
 	Feeder
 	Drainer
 }
 
-type FeederCloser interface {
+type FeedCloser interface {
 	Feeder
 	io.Closer
 }
 
-type DrainerCloser interface {
+type DrainCloser interface {
 	Drainer
 	io.Closer
 }
 
-type FeederDrainerCloser interface {
+type FeedDrainCloser interface {
 	Feeder
 	Drainer
 	io.Closer

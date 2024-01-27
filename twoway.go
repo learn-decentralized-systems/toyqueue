@@ -14,18 +14,18 @@ func (bi *BiChannel) Drain(recs Records) error {
 }
 
 type TwoWayChannel struct {
-	Outbound FeederDrainer
-	Inbound  FeederDrainer
+	Outbound FeedDrainer
+	Inbound  FeedDrainer
 }
 
-func (tw *TwoWayChannel) Inner() FeederDrainer {
+func (tw *TwoWayChannel) Inner() FeedDrainer {
 	return &BiChannel{
 		drainer: tw.Outbound,
 		feeder:  tw.Inbound,
 	}
 }
 
-func (tw *TwoWayChannel) Outer() FeederDrainer {
+func (tw *TwoWayChannel) Outer() FeedDrainer {
 	return &BiChannel{
 		drainer: tw.Inbound,
 		feeder:  tw.Outbound,
