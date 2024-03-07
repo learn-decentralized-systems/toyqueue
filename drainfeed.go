@@ -10,16 +10,11 @@ import "io"
 type Records [][]byte
 
 type Feeder interface {
+	// Feed reads and returns records.
+	// The EoF convention follows that of io.Reader:
+	// can either return `records, EoF` or
+	// `records, nil` followed by `nil/{}, EoF`
 	Feed() (recs Records, err error)
-}
-
-type Drainer interface {
-	Drain(recs Records) error
-}
-
-type FeedDrainer interface {
-	Feeder
-	Drainer
 }
 
 type FeedCloser interface {
@@ -27,9 +22,40 @@ type FeedCloser interface {
 	io.Closer
 }
 
+type FeedSeeker interface {
+	Feeder
+	io.Seeker
+}
+
+type FeedSeekCloser interface {
+	Feeder
+	io.Seeker
+	io.Closer
+}
+
+type Drainer interface {
+	Drain(recs Records) error
+}
+
+type DrainSeeker interface {
+	Drainer
+	io.Seeker
+}
+
 type DrainCloser interface {
 	Drainer
 	io.Closer
+}
+
+type DrainSeekCloser interface {
+	Drainer
+	io.Seeker
+	io.Closer
+}
+
+type FeedDrainer interface {
+	Feeder
+	Drainer
 }
 
 type FeedDrainCloser interface {
