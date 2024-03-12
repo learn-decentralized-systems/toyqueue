@@ -1,33 +1,38 @@
 package toyqueue
 
-type BiChannel struct {
-	drainer Drainer
-	feeder  Feeder
+type twoWayQueue struct {
+	in  DrainCloser
+	out FeedCloser
 }
 
-func (bi *BiChannel) Feed() (recs Records, err error) {
-	return bi.feeder.Feed()
+func RecordQueuePair(limit int) (i, o FeedDrainCloser) {
+	a := RecordQueue{Limit: limit}
+	b := RecordQueue{Limit: limit}
+	i = &twoWayQueue{in: &a, out: &b}
+	o = &twoWayQueue{in: &b, out: &a}
+	return
 }
 
-func (bi *BiChannel) Drain(recs Records) error {
-	return bi.drainer.Drain(recs)
+func BlockingRecordQueuePair(limit int) (i, o FeedDrainCloser) {
+	_a, _b := RecordQueue{Limit: limit}, RecordQueue{Limit: limit}
+	a, b := _a.Blocking(), _b.Blocking()
+	i = &twoWayQueue{in: a, out: b}
+	o = &twoWayQueue{in: b, out: a}
+	return
 }
 
-type TwoWayChannel struct {
-	Outbound FeedDrainer
-	Inbound  FeedDrainer
+func (tw *twoWayQueue) Feed() (recs Records, err error) {
+	return tw.out.Feed()
 }
 
-func (tw *TwoWayChannel) Inner() FeedDrainer {
-	return &BiChannel{
-		drainer: tw.Outbound,
-		feeder:  tw.Inbound,
+func (tw *twoWayQueue) Drain(recs Records) error {
+	return tw.in.Drain(recs)
+}
+
+func (tw *twoWayQueue) Close() (err error) {
+	err = tw.in.Close()
+	if err == nil {
+		err = tw.out.Close()
 	}
-}
-
-func (tw *TwoWayChannel) Outer() FeedDrainer {
-	return &BiChannel{
-		drainer: tw.Inbound,
-		feeder:  tw.Outbound,
-	}
+	return
 }
