@@ -47,9 +47,9 @@ func (c *counterDrain) Close() error {
 }
 
 func TestFanout(t *testing.T) {
-	var f2d Feeder2Drainers
+	var f2d Fanout
 	f := counterFeed{Counter: 5}
-	f2d.Feeder = &f
+	f2d.feeder = &f
 	wait := sync.WaitGroup{}
 	wait.Add(3)
 	c1 := counterDrain{group: &wait}
